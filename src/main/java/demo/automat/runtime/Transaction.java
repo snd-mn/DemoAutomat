@@ -7,15 +7,15 @@ import demo.automat.repositories.MuenzenRepository;
 import demo.automat.services.GeldRueckgabeService;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.Entity;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
 @Data
+@Component
 public class Transaction {
 
     @Autowired
@@ -26,6 +26,7 @@ public class Transaction {
 
     @Autowired
     GeldRueckgabeService geldRueckgabeService;
+
 
     private List<Muenze> Einzahlungen = new ArrayList<>();
     private List<Muenze> rueckgeld = new ArrayList<>();
@@ -76,6 +77,12 @@ public class Transaction {
             return false;
         }
         return true;
+    }
+
+    public void Reset(){
+        Einzahlungen = new ArrayList<>();
+        rueckgeld = new ArrayList<>();
+        GetraenkAuswahl = null;
     }
 
     @Transactional
