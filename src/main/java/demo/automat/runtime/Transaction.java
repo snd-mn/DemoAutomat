@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.Entity;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public class Transaction {
     GeldRueckgabeService geldRueckgabeService;
 
     private List<Muenze> Einzahlungen = new ArrayList<>();
+    private List<Muenze> rueckgeld = new ArrayList<>();
     private Getraenk GetraenkAuswahl = null;
 
     public void receiveEinzahlung(Muenze muenze) {
@@ -69,16 +71,26 @@ public class Transaction {
         BigDecimal preis = GetraenkAuswahl.getPreis();
 
         try {
-            List<Muenze> rueckgeld = geldRueckgabeService.getRueckgeld(einzahlung, preis);
+            rueckgeld = geldRueckgabeService.getRueckgeld(einzahlung, preis);
         } catch (Exception e) {
             return false;
         }
         return true;
     }
 
+    @Transactional
     public boolean commit() {
-        //TODO
-        return false;
+        boolean canCommit = canCommit();
+        boolean commited = false;
+        if(canCommit())
+        {
+            //TODO bestandsaenderungen
+
+
+            commited = true;
+        }
+
+        return commited;
     }
 
 }
