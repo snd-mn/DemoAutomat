@@ -2,6 +2,7 @@ package demo.automat.controller;
 
 import demo.automat.entities.Getraenk;
 import demo.automat.entities.Muenze;
+import demo.automat.repositories.MuenzenRepository;
 import demo.automat.runtime.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,8 +11,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Optional;
+
 @Controller
 public class AutomatController {
+    @Autowired
+    MuenzenRepository muenzenRepository;
+
     @Autowired
     Transaction transaction;
 
@@ -29,7 +35,14 @@ public class AutomatController {
     @PostMapping("/einwurf")
     public ResponseEntity<String> einwurf(@RequestBody Muenze muenze)
     {
-        //todo filter munze from db by id, keine hosenknoepfe
+        Optional<Muenze> optMuenze = muenzenRepository.findById(muenze.getId());
+        muenze = optMuenze.get();
+
+        if(muenze == null)
+        {
+            new ResponseEntity<String>("keine hosenknoepfe, danke", HttpStatus.FORBIDDEN);
+        }
+
         transaction.receiveEinzahlung(muenze);
         if(transaction.canCommit())
         {
@@ -37,8 +50,8 @@ public class AutomatController {
             transaction.commit();
             transaction.Reset();
             return new ResponseEntity<String>("ausgabe von " + getraenk.getName() + ". guten durst.", HttpStatus.OK);
-
         }
+
         return new ResponseEntity<String>("hier fehlt noch was", HttpStatus.OK);
     }
 
